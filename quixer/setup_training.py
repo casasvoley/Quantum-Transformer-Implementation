@@ -361,8 +361,8 @@ def train_cycle(
         return evaluate(model, iter, loss_function, hyperparams["window"])
     
     # Lists to store training statistics
-    train_loss = []
-    train_valid_loss = []
+    train_loss_list = []
+    train_valid_loss_list = []
 
     best_valid_loss = float("inf")
     for epoch in range(hyperparams["epochs"]):
@@ -392,8 +392,8 @@ def train_cycle(
         print(f"\tTrain Loss: {train_loss:.3f} | Train ppl: {math.exp(train_loss)}")
         print(f"\t Val. Loss: {valid_loss:.3f} |  Val. ppl: {math.exp(valid_loss)}")
 
-        train_loss.append(train_loss)
-        train_valid_loss.append(valid_loss)
+        train_loss_list.append(train_loss)
+        train_valid_loss_list.append(valid_loss)
 
     model.load_state_dict(torch.load(checkpoint_fpath))
 
@@ -404,7 +404,7 @@ def train_cycle(
     print(f"\t Val. Loss: {valid_loss:.3f} |  Val. ppl: {math.exp(valid_loss)}")
     print(f"\t Test Loss: {test_loss:.3f} |  Test ppl: {math.exp(test_loss)}")
 
-    return train_loss, train_valid_loss, valid_loss, test_loss
+    return train_loss_list, train_valid_loss_list, valid_loss, test_loss
 
 
 def seed(SEED: int) -> None:
