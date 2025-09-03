@@ -106,7 +106,7 @@ args.add_argument(
     nargs="*",
     help="Model(s) to run.",
 )
-args.add_argument("-d", "--device", default="gpu", help="Device to run training on.")
+args.add_argument("-d", "--device", default="cuda", help="Device to run training on.")
 parsed = args.parse_args()
 
 device_name = parsed.device
