@@ -1,0 +1,11 @@
+torch==2.3.0
+torchtext==0.18.0
+torchquantum>=0.1.8,<0.2
+torchvision==0.18.0
+datasets>=3.2,<3.3
+qiskit<1.0
+qiskit-aer==0.13.3
+qiskit-ibm-provider==0.10.0
+qiskit-ibm-runtime==0.20.0
+qiskit-terra
+tqdm>=4.67,<4.68
