@@ -359,6 +359,10 @@ def train_cycle(
 
     def _evaluate(iter: torch.Tensor):
         return evaluate(model, iter, loss_function, hyperparams["window"])
+    
+    # Lists to store training statistics
+    train_loss = []
+    train_valid_loss = []
 
     best_valid_loss = float("inf")
     for epoch in range(hyperparams["epochs"]):
@@ -388,6 +392,9 @@ def train_cycle(
         print(f"\tTrain Loss: {train_loss:.3f} | Train ppl: {math.exp(train_loss)}")
         print(f"\t Val. Loss: {valid_loss:.3f} |  Val. ppl: {math.exp(valid_loss)}")
 
+        train_loss.append(train_loss)
+        train_valid_loss.append(valid_loss)
+
     model.load_state_dict(torch.load(checkpoint_fpath))
 
     valid_loss = _evaluate(val_iter)
@@ -397,7 +404,7 @@ def train_cycle(
     print(f"\t Val. Loss: {valid_loss:.3f} |  Val. ppl: {math.exp(valid_loss)}")
     print(f"\t Test Loss: {test_loss:.3f} |  Test ppl: {math.exp(test_loss)}")
 
-    return test_loss
+    return train_loss, train_valid_loss, valid_loss, test_loss
 
 
 def seed(SEED: int) -> None:
@@ -445,10 +452,31 @@ def get_train_evaluate(device: Device) -> Callable:
 
         model = model.to(device)
 
-        valid_loss = train_cycle(
+        train_loss, train_valid_loss, valid_loss, test_loss = train_cycle(
             model, parameterization, train_iter, val_iter, test_iter
         )
 
-        return valid_loss
+        write_csv(parameterization, train_loss, train_valid_loss, valid_loss, test_loss)
+
+        return train_loss, train_valid_loss, valid_loss, test_loss
 
     return train_evaluate
+
+
+def write_csv(hyperparams:dict[str, Any], train_loss:list, train_valid_loss:list, valid_loss:float, test_loss:float) -> None:
+    """
+    Write training statistics to a CSV file.
+    """
+
+    folder_path = Path("./training_stats")
+    folder_path.mkdir(exist_ok=True, parents=True)
+    stats_fpath = (
+        folder_path
+        / f"training_stats_{hyperparams['model']}_{hyperparams['seed']}_{int(time.time())}.csv"
+    )
+
+    with open(stats_fpath, "w") as f:
+        f.write("epoch,train_loss,valid_loss\n")
+        for epoch in range(len(train_loss)):
+            f.write(f"{epoch+1},{train_loss[epoch]},{train_valid_loss[epoch]}\n")
+        f.write(f"final,,{valid_loss},{test_loss}\n")
