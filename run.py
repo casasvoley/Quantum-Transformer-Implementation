@@ -5,7 +5,7 @@ import torch
 from quixer.setup_training import get_train_evaluate
 import torchtext
 
-warnings.warn(torchtext._TORCHTEXT_DEPRECATION_MSG)
+torchtext.disable_torchtext_deprecation_warning()
 
 
 ##################################################
