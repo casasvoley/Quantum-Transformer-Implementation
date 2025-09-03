@@ -139,7 +139,7 @@ def setup_dataset(
     """
 
     # Download dataset from the Hugging Face Hub / load dataset
-    raw_dset = load_dataset("ptb_text_only")
+    raw_dset = load_dataset("ptb_text_only", trust_remote_code=True)
 
     # Get training data in PyArrow format
     train_iter = raw_dset["train"].data[0]
