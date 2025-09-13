@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
                 train_evaluate(hyperparameters)
 
-def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None):
+def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None, load_from_checkpoint:str=None, completed_epochs:int=None):
     if model_name not in available_models:
         raise ValueError(f"Model {model_name} is not available. Choose from {available_models}.")
     
@@ -153,4 +153,4 @@ def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz
         hyperparameters["qubits"] = qubits
 
     train_evaluate = get_train_evaluate(device)
-    train_evaluate(hyperparameters)
+    train_evaluate(hyperparameters, load_from_checkpoint, completed_epochs)

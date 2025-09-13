@@ -321,6 +321,7 @@ def train_cycle(
     train_iter: torch.Tensor,
     val_iter: torch.Tensor,
     test_iter: torch.Tensor,
+    completed_epochs: Optional[int]=None,
 ) -> float:
     """
     Run a training cycle.
@@ -365,7 +366,8 @@ def train_cycle(
     train_valid_loss_list = []
 
     best_valid_loss = float("inf")
-    for epoch in range(hyperparams["epochs"]):
+    starting_epoch = 0 if completed_epochs is None else completed_epochs
+    for epoch in range(starting_epoch, hyperparams["epochs"]):
         start_time = time.time()
 
         train_loss = train_epoch(
@@ -434,7 +436,7 @@ def get_train_evaluate(device: Device) -> Callable:
       at the end of the training cycle.
     """
 
-    def train_evaluate(parameterization: dict[str, Any]) -> float:
+    def train_evaluate(parameterization: dict[str, Any], load_from_checkpoint:str=None, completed_epochs:int=None) -> float:
         """
         Train the model and return the test loss.
         """
@@ -454,8 +456,12 @@ def get_train_evaluate(device: Device) -> Callable:
 
         model = model.to(device)
 
+        if load_from_checkpoint is not None:
+            print(f"Loading model weights from {load_from_checkpoint}...")
+            model.load_state_dict(torch.load(load_from_checkpoint))
+
         train_loss, train_valid_loss, valid_loss, test_loss = train_cycle(
-            model, parameterization, train_iter, val_iter, test_iter
+            model, parameterization, train_iter, val_iter, test_iter, completed_epochs,
         )
 
         write_csv(parameterization, train_loss, train_valid_loss, valid_loss, test_loss)
