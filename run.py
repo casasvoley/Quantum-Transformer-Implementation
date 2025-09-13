@@ -98,34 +98,35 @@ model_map = {
 }
 available_models = list(model_map.keys())
 
-# Parse command line arguments
-args = argparse.ArgumentParser(
-    prog="Quixer", description="Runs the Quixer model and/or classical baselines"
-)
-args.add_argument(
-    "-m",
-    "--model",
-    default="Quixer",
-    choices=available_models,
-    nargs="*",
-    help="Model(s) to run.",
-)
-args.add_argument("-d", "--device", default="cuda", help="Device to run training on.")
-parsed = args.parse_args()
-
-device_name = parsed.device
-models_to_run = parsed.model if type(parsed.model) is list else [parsed.model]
-
-# Make algorithms deterministic for reproducibility
-torch.backends.cudnn.deterministic = True
-
-
-device = torch.device(device_name)
-print(f"Running on device: {device}")
-
-train_evaluate = get_train_evaluate(device)
-
 if __name__ == "__main__":
+    # Parse command line arguments
+    args = argparse.ArgumentParser(
+        prog="Quixer", description="Runs the Quixer model and/or classical baselines"
+    )
+    args.add_argument(
+        "-m",
+        "--model",
+        default="Quixer",
+        choices=available_models,
+        nargs="*",
+        help="Model(s) to run.",
+    )
+    args.add_argument("-d", "--device", default="cuda", help="Device to run training on.")
+    parsed = args.parse_args()
+
+    device_name = parsed.device
+    models_to_run = parsed.model if type(parsed.model) is list else [parsed.model]
+
+    # Make algorithms deterministic for reproducibility
+    torch.backends.cudnn.deterministic = True
+
+
+    device = torch.device(device_name)
+    print(f"Running on device: {device}")
+
+    train_evaluate = get_train_evaluate(device)
+
+
     for model_name in models_to_run:
         hyperparameters, embedding_dimensions = model_map[model_name]
         for embedding_dimension in embedding_dimensions:
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
                 train_evaluate(hyperparameters)
 
-def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None, load_from_checkpoint:str=None, completed_epochs:int=None):
+def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None, load_from_checkpoint:str=None, completed_epochs:int=None, device:str="cuda"):
     if model_name not in available_models:
         raise ValueError(f"Model {model_name} is not available. Choose from {available_models}.")
     
@@ -151,6 +152,12 @@ def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz
         hyperparameters["ansatz_layers"] = ansatz_layers
     if qubits is not None and model_name == "Quixer":
         hyperparameters["qubits"] = qubits
+
+    # Make algorithms deterministic for reproducibility
+    torch.backends.cudnn.deterministic = True
+
+    device = torch.device(device_name)
+    print(f"Running on device: {device}")
 
     train_evaluate = get_train_evaluate(device)
     train_evaluate(hyperparameters, load_from_checkpoint, completed_epochs)
