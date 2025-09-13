@@ -334,7 +334,7 @@ def train_cycle(
       test_iter: Tensor containing test data returned by `setup_dataset` function.
     """
 
-    folder_path = Path("/content/drive/trained_models")
+    folder_path = Path("/content/drive/MyDrive/trained_models")
     folder_path.mkdir(exist_ok=True, parents=True)
     checkpoint_fpath = (
         folder_path
@@ -476,7 +476,7 @@ def write_csv(hyperparams:dict[str, Any], train_loss:list, train_valid_loss:list
     Write training statistics to a CSV file.
     """
 
-    folder_path = Path("/content/drive/training_stats")
+    folder_path = Path("/content/drive/MyDrive/training_stats")
     folder_path.mkdir(exist_ok=True, parents=True)
     stats_fpath = (
         folder_path
