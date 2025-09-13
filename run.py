@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
                 train_evaluate(hyperparameters)
 
-def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None, load_from_checkpoint:str=None, completed_epochs:int=None, device:str="cuda"):
+def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None, load_from_checkpoint:str=None, completed_epochs:int=None, device_name:str="cuda"):
     if model_name not in available_models:
         raise ValueError(f"Model {model_name} is not available. Choose from {available_models}.")
     
