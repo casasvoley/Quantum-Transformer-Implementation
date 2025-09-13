@@ -125,13 +125,32 @@ print(f"Running on device: {device}")
 
 train_evaluate = get_train_evaluate(device)
 
+if __name__ == "__main__":
+    for model_name in models_to_run:
+        hyperparameters, embedding_dimensions = model_map[model_name]
+        for embedding_dimension in embedding_dimensions:
+            for seed in torch.randint(high=1000000, size=(10,)).tolist():
+                hyperparameters["model"] = model_name
+                hyperparameters["dimension"] = embedding_dimension
+                hyperparameters["seed"] = seed
 
-for model_name in models_to_run:
-    hyperparameters, embedding_dimensions = model_map[model_name]
-    for embedding_dimension in embedding_dimensions:
-        for seed in torch.randint(high=1000000, size=(10,)).tolist():
-            hyperparameters["model"] = model_name
-            hyperparameters["dimension"] = embedding_dimension
-            hyperparameters["seed"] = seed
+                train_evaluate(hyperparameters)
 
-            train_evaluate(hyperparameters)
+def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None):
+    if model_name not in available_models:
+        raise ValueError(f"Model {model_name} is not available. Choose from {available_models}.")
+    
+    seed = torch.randint(high=1000000, size=(1,)).item()
+    hyperparameters, _ = model_map[model_name]
+    hyperparameters["model"] = model_name
+    hyperparameters["dimension"] = embedding_dimension
+    hyperparameters["seed"] = seed
+    if layers is not None:
+        hyperparameters["layers"] = layers
+    if ansatz_layers is not None and model_name == "Quixer":
+        hyperparameters["ansatz_layers"] = ansatz_layers
+    if qubits is not None and model_name == "Quixer":
+        hyperparameters["qubits"] = qubits
+
+    train_evaluate = get_train_evaluate(device)
+    train_evaluate(hyperparameters)

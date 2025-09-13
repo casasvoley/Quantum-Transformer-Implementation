@@ -333,11 +333,11 @@ def train_cycle(
       test_iter: Tensor containing test data returned by `setup_dataset` function.
     """
 
-    folder_path = Path("./trained_models")
+    folder_path = Path("/content/drive/trained_models")
     folder_path.mkdir(exist_ok=True, parents=True)
     checkpoint_fpath = (
         folder_path
-        / f"q_transformer_lm_{hyperparams['model']}_{hyperparams['seed']}_{int(time.time())}.pt"
+        / f"q_transformer_lm_{hyperparams['model']}_{hyperparams['layers']}_{int(time.time())}.pt"
     )
 
     # Set up optimizer
@@ -394,6 +394,8 @@ def train_cycle(
 
         train_loss_list.append(train_loss)
         train_valid_loss_list.append(valid_loss)
+
+        write_csv(hyperparams, train_loss_list, train_valid_loss_list)
 
     model.load_state_dict(torch.load(checkpoint_fpath))
 
@@ -463,12 +465,12 @@ def get_train_evaluate(device: Device) -> Callable:
     return train_evaluate
 
 
-def write_csv(hyperparams:dict[str, Any], train_loss:list, train_valid_loss:list, valid_loss:float, test_loss:float) -> None:
+def write_csv(hyperparams:dict[str, Any], train_loss:list, train_valid_loss:list, valid_loss:float=None, test_loss:float=None) -> None:
     """
     Write training statistics to a CSV file.
     """
 
-    folder_path = Path("./training_stats")
+    folder_path = Path("/content/drive/training_stats")
     folder_path.mkdir(exist_ok=True, parents=True)
     stats_fpath = (
         folder_path
@@ -479,4 +481,5 @@ def write_csv(hyperparams:dict[str, Any], train_loss:list, train_valid_loss:list
         f.write("epoch,train_loss,valid_loss\n")
         for epoch in range(len(train_loss)):
             f.write(f"{epoch+1},{train_loss[epoch]},{train_valid_loss[epoch]}\n")
-        f.write(f"final,,{valid_loss},{test_loss}\n")
+        if valid_loss is not None and test_loss is not None:
+            f.write(f"final,,{valid_loss},{test_loss}\n")
