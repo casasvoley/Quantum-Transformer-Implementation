@@ -456,6 +456,8 @@ def get_train_evaluate(device: Device) -> Callable:
 
         model = model.to(device)
 
+        print(model)
+
         if load_from_checkpoint is not None:
             print(f"Loading model weights from {load_from_checkpoint}...")
             model.load_state_dict(torch.load(load_from_checkpoint))
