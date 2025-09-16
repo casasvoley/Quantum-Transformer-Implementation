@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
                 train_evaluate(hyperparameters)
 
-def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None, load_from_checkpoint:str=None, completed_epochs:int=None, device_name:str="cuda"):
+def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz_layers:int=None, qubits:int=None, heads:int=None, dropout:float=None, load_from_checkpoint:str=None, completed_epochs:int=None, device_name:str="cuda"):
     if model_name not in available_models:
         raise ValueError(f"Model {model_name} is not available. Choose from {available_models}.")
     
@@ -152,6 +152,10 @@ def train_model(model_name:str, embedding_dimension:int, layers:int=None, ansatz
         hyperparameters["ansatz_layers"] = ansatz_layers
     if qubits is not None and model_name == "Quixer":
         hyperparameters["qubits"] = qubits
+    if heads is not None and model_name == "Transformer":
+        hyperparameters["heads"] = heads
+    if dropout is not None and model_name == "Transformer":
+        hyperparameters["dropout"] = dropout
 
     # Make algorithms deterministic for reproducibility
     torch.backends.cudnn.deterministic = True
